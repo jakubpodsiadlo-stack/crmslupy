@@ -143,7 +143,37 @@ export function BackOfficeArchiwumUmowPage() {
   return (
     <BackOfficeLayout title="Archiwum umów">
       <section className="dash-panel" style={{ maxWidth: '100%' }}>
-        <div className="dash-panel__head" style={{ justifyContent: 'flex-end' }}>
+        <div className="dash-panel__head" style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+          {!err ? (
+            <div className="dash-code-toolbar" style={{ marginBottom: 0, flex: 1 }}>
+              <div className="dash-code-filter">
+                <span className="dash-code-filter__icon">
+                  <IconSearch size={18} />
+                </span>
+                <label htmlFor="bo-archiwum-code-filter" className="visually-hidden">
+                  Filtruj po kodzie
+                </label>
+                <input
+                  id="bo-archiwum-code-filter"
+                  type="search"
+                  className="dash-code-filter__input"
+                  placeholder="Filtruj po kodzie…"
+                  value={codeFilter}
+                  onChange={(e) => setCodeFilter(e.target.value)}
+                  disabled={loading}
+                  autoComplete="off"
+                  spellCheck={false}
+                />
+              </div>
+              {needle ? (
+                <p className="dash-code-filter__hint">
+                  Wyniki: {filteredRows.length} z {rows.length}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            <span />
+          )}
           <button type="button" className="dash-table__btn" onClick={() => load()} disabled={loading}>
             Odśwież
           </button>
@@ -157,34 +187,6 @@ export function BackOfficeArchiwumUmowPage() {
           <p className="dash-muted" style={{ marginBottom: '0.75rem', fontSize: '0.85rem', whiteSpace: 'pre-line' }}>
             {mergeWarning}
           </p>
-        ) : null}
-        {!err ? (
-          <div className="dash-code-toolbar">
-            <div className="dash-code-filter">
-              <span className="dash-code-filter__icon">
-                <IconSearch size={18} />
-              </span>
-              <label htmlFor="bo-archiwum-code-filter" className="visually-hidden">
-                Filtruj po kodzie
-              </label>
-              <input
-                id="bo-archiwum-code-filter"
-                type="search"
-                className="dash-code-filter__input"
-                placeholder="Filtruj po kodzie…"
-                value={codeFilter}
-                onChange={(e) => setCodeFilter(e.target.value)}
-                disabled={loading}
-                autoComplete="off"
-                spellCheck={false}
-              />
-            </div>
-            {needle ? (
-              <p className="dash-code-filter__hint">
-                Wyniki: {filteredRows.length} z {rows.length}
-              </p>
-            ) : null}
-          </div>
         ) : null}
         {loading ? (
           <p className="dash-muted">Ładowanie…</p>
