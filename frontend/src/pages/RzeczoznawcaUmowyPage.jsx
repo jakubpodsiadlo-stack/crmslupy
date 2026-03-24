@@ -189,10 +189,6 @@ export function RzeczoznawcaUmowyPage() {
             Odśwież
           </button>
         </div>
-        <p className="dash-muted" style={{ marginBottom: '0.75rem', fontSize: '0.9rem', maxWidth: '52rem' }}>
-          Tylko umowy z <strong>gotowym BO</strong>. Wybierz kategorię w <strong>menu z lewej</strong> lub poniżej, potem
-          filtruj po kodzie / handlowcu. Status zmieniasz w <strong>podglądzie umowy</strong> (nagłówek modala).
-        </p>
         {!err ? (
           <div
             className="dash-umowy-subtabs"
