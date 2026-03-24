@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { PrezesPreviewBanner } from '../components/PrezesPreviewBanner'
 import { PylonIcon } from '../components/icons/PylonIcon'
-import { BackOfficeTasksTabContext } from './BackOfficeTasksTabContext'
 import { usePrezesForeignPanelPreview } from '../lib/usePrezesForeignPanelPreview'
 
 function IconLayout() {
@@ -64,6 +63,19 @@ function IconArchive() {
   )
 }
 
+function IconChecklist() {
+  return (
+    <svg className="dash__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 6h11" />
+      <path d="M9 12h11" />
+      <path d="M9 18h11" />
+      <path d="m3 6 1.5 1.5L7 5" />
+      <path d="m3 12 1.5 1.5L7 11" />
+      <path d="m3 18 1.5 1.5L7 17" />
+    </svg>
+  )
+}
+
 function navClass(isActive) {
   return isActive ? 'dash__nav-link--active' : undefined
 }
@@ -100,7 +112,7 @@ function HeaderUser() {
 
 export function BackOfficeLayout({ children, title }) {
   const { signOut, profile } = useAuth()
-  const [taskTab, setTaskTab] = useState('all')
+  const [tab, setTab] = useState('all')
   const showInfoliniaLink = profile?.role === 'administrator'
 
   return (
@@ -129,6 +141,10 @@ export function BackOfficeLayout({ children, title }) {
           <NavLink to="/panel/back-office/archiwum-umow" end className={({ isActive }) => navClass(isActive)}>
             <IconArchive />
             Archiwum umów
+          </NavLink>
+          <NavLink to="/panel/back-office/zadania" end className={({ isActive }) => navClass(isActive)}>
+            <IconChecklist />
+            Zadania
           </NavLink>
           <span className="dash__nav-item--soon">
             <IconUsers />
@@ -176,42 +192,34 @@ export function BackOfficeLayout({ children, title }) {
               </button>
             </div>
           </div>
-          <div className="dash__tabs-group">
-            <p className="dash__tabs-heading">Zadania</p>
-            <div className="dash__tabs" role="tablist" aria-label="Zakładki zadań">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={taskTab === 'all'}
-                className={`dash__tab ${taskTab === 'all' ? 'dash__tab--active' : ''}`}
-                onClick={() => setTaskTab('all')}
-              >
-                Wszystkie
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={taskTab === 'mine'}
-                className={`dash__tab ${taskTab === 'mine' ? 'dash__tab--active' : ''}`}
-                onClick={() => setTaskTab('mine')}
-              >
-                Moje
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={taskTab === 'done'}
-                className={`dash__tab ${taskTab === 'done' ? 'dash__tab--active' : ''}`}
-                onClick={() => setTaskTab('done')}
-              >
-                Zakończone
-              </button>
-            </div>
+          <div className="dash__tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              className={`dash__tab ${tab === 'all' ? 'dash__tab--active' : ''}`}
+              onClick={() => setTab('all')}
+            >
+              Wszystkie
+            </button>
+            <button
+              type="button"
+              role="tab"
+              className={`dash__tab ${tab === 'mine' ? 'dash__tab--active' : ''}`}
+              onClick={() => setTab('mine')}
+            >
+              Moje
+            </button>
+            <button
+              type="button"
+              role="tab"
+              className={`dash__tab ${tab === 'reports' ? 'dash__tab--active' : ''}`}
+              onClick={() => setTab('reports')}
+            >
+              Raporty
+            </button>
           </div>
         </header>
-        <BackOfficeTasksTabContext.Provider value={{ tab: taskTab, setTab: setTaskTab }}>
-          <div className="dash__content">{children}</div>
-        </BackOfficeTasksTabContext.Provider>
+        <div className="dash__content">{children}</div>
       </div>
     </div>
   )

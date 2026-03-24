@@ -6,6 +6,7 @@ import { BackOfficePulpitPage } from './pages/BackOfficePulpitPage'
 import { BackOfficeStartPage } from './pages/BackOfficeStartPage'
 import { BackOfficeArchiwumUmowPage } from './pages/BackOfficeArchiwumUmowPage'
 import { BackOfficeUmowyPage } from './pages/BackOfficeUmowyPage'
+import { BackOfficeZadaniaPage } from './pages/BackOfficeZadaniaPage'
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage'
 import { DyrektorPunktyPage } from './pages/DyrektorPunktyPage'
 import { DyrektorStartPage } from './pages/DyrektorStartPage'
@@ -120,6 +121,14 @@ export default function App() {
             element={
               <RoleRoute allow={['backoffice', 'administrator', 'prezes']}>
                 <BackOfficeArchiwumUmowPage />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/panel/back-office/zadania"
+            element={
+              <RoleRoute allow={['backoffice', 'administrator', 'prezes']}>
+                <BackOfficeZadaniaPage />
               </RoleRoute>
             }
           />
