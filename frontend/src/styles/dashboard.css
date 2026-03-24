@@ -1201,6 +1201,19 @@
   overflow: hidden;
 }
 
+/* W zakładce BO "Dodaj pliki" dajemy więcej miejsca na podgląd dokumentu. */
+.dash-code-modal__body--bo-files .bo-files-layout__preview-pane {
+  flex: 1.35;
+}
+
+.dash-code-modal__body--bo-files .bo-files-layout__files-sidebar {
+  width: 14.25rem;
+}
+
+.dash-code-modal__body--bo-files .bo-files-layout__side {
+  width: min(100%, 360px);
+}
+
 .dash-code-modal__body--rzeczoznawca-embed {
   display: flex;
   flex-direction: column;
