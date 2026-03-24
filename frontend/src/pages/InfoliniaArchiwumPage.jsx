@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 import { FirstLeadDetailModal } from '../components/FirstLeadDetailModal'
 import { IconSearch } from '../components/icons/CodeModalIcons'
 import {
@@ -12,7 +11,6 @@ import {
   formatFirstLeadSchemaError,
   formatSupabaseError,
 } from '../lib/firstLeadQueries'
-import { useModalSessionRestoreGate } from '../lib/useModalSessionRestoreGate'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { supabase } from '../lib/supabase'
 
@@ -49,8 +47,6 @@ function normalizeCodeFilter(q) {
 }
 
 export function InfoliniaArchiwumPage() {
-  const location = useLocation()
-  const restoreModalOnce = useModalSessionRestoreGate(location.pathname)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState(null)
@@ -88,10 +84,10 @@ export function InfoliniaArchiwumPage() {
         const next = data.find((r) => r.id === prev.id)
         return next ?? null
       }
-      return restoreModalOnce(data)
+      return null
     })
     if (warn) setMergeWarning(warn)
-  }, [location.pathname, restoreModalOnce])
+  }, [])
 
   useEffect(() => {
     load()

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
 import { FirstLeadDetailModal } from '../components/FirstLeadDetailModal'
 import { IconSearch } from '../components/icons/CodeModalIcons'
 import {
@@ -7,7 +6,6 @@ import {
   getCodeTimestamp,
   getVerificationLabel,
 } from '../lib/firstLeadDisplay'
-import { useModalSessionRestoreGate } from '../lib/useModalSessionRestoreGate'
 import { fetchFirstLeadsWithCalculator, formatSupabaseError } from '../lib/firstLeadQueries'
 import { DashboardLayout } from '../layouts/DashboardLayout'
 import { supabase } from '../lib/supabase'
@@ -45,8 +43,6 @@ function normalizeCodeFilter(q) {
 }
 
 export function InfoliniaOdczytKodowPage() {
-  const location = useLocation()
-  const restoreModalOnce = useModalSessionRestoreGate(location.pathname)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState(null)
@@ -83,10 +79,10 @@ export function InfoliniaOdczytKodowPage() {
         const next = data.find((r) => r.id === prev.id)
         return next ?? null
       }
-      return restoreModalOnce(data)
+      return null
     })
     if (warn) setMergeWarning(warn)
-  }, [location.pathname, restoreModalOnce])
+  }, [])
 
   useEffect(() => {
     load()
