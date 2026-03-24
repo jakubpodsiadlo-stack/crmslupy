@@ -132,10 +132,6 @@ export function InfoliniaArchiwumPage() {
             Odśwież
           </button>
         </div>
-        <p className="dash-muted" style={{ marginBottom: '1rem', fontSize: '0.9rem', maxWidth: '42rem' }}>
-          Wpisy oznaczone jako zweryfikowane schodzą z listy KODY i lądują tutaj. Możesz je w każdej chwili przywrócić
-          na listę kodów.
-        </p>
         {err ? (
           <p className="error" style={{ marginBottom: '0.75rem' }}>
             {err}
