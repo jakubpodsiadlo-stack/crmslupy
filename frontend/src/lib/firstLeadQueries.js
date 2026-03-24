@@ -132,6 +132,68 @@ export async function fetchFirstLeadsWithCalculator(supabase, options = {}) {
   }
 }
 
+/**
+ * Liczniki pod pulpit BO — zgodne z zakładkami „Umowy”:
+ * - active: zweryfikowane przez infolinię, w kolejce BO (archiwum infolinii + BO niezweryfikowany),
+ * - pendingAcceptance: przed weryfikacją infolinii, nadal w kolejce BO (lista kodów + BO niezweryfikowany).
+ * @returns {{ activeCount: number, pendingAcceptanceCount: number, error: object | null }}
+ */
+export async function countBackOfficeUmowyPipeline(supabase) {
+  const qActive = () =>
+    supabase
+      .from('first_lead')
+      .select('id', { count: 'exact', head: true })
+      .not('archived_at', 'is', null)
+      .eq('verification_status', 'zweryfikowany')
+      .eq('backoffice_status', 'niezweryfikowany')
+
+  const qPending = () =>
+    supabase
+      .from('first_lead')
+      .select('id', { count: 'exact', head: true })
+      .is('archived_at', null)
+      .eq('backoffice_status', 'niezweryfikowany')
+      .or('verification_status.is.null,verification_status.eq.niezweryfikowany')
+
+  let { count: activeCount, error: errActive } = await qActive()
+
+  if (errActive && verificationStatusColumnMissingFromError(errActive)) {
+    ;({ count: activeCount, error: errActive } = await supabase
+      .from('first_lead')
+      .select('id', { count: 'exact', head: true })
+      .not('archived_at', 'is', null)
+      .eq('backoffice_status', 'niezweryfikowany'))
+  }
+
+  if (errActive) {
+    return { activeCount: 0, pendingAcceptanceCount: 0, error: errActive }
+  }
+
+  let { count: pendingCount, error: errPending } = await qPending()
+
+  if (errPending && verificationStatusColumnMissingFromError(errPending)) {
+    ;({ count: pendingCount, error: errPending } = await supabase
+      .from('first_lead')
+      .select('id', { count: 'exact', head: true })
+      .is('archived_at', null)
+      .eq('backoffice_status', 'niezweryfikowany'))
+  }
+
+  if (errPending) {
+    return {
+      activeCount: activeCount ?? 0,
+      pendingAcceptanceCount: 0,
+      error: errPending,
+    }
+  }
+
+  return {
+    activeCount: activeCount ?? 0,
+    pendingAcceptanceCount: pendingCount ?? 0,
+    error: null,
+  }
+}
+
 export function formatSupabaseError(error) {
   if (!error) return ''
   const bits = [error.message || 'Błąd Supabase']
