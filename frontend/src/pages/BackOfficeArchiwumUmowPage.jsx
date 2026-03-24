@@ -58,6 +58,7 @@ function cityDisplay(row) {
 
 export function BackOfficeArchiwumUmowPage() {
   const location = useLocation()
+  const restoreModalOnce = useModalSessionRestoreGate(location.pathname)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState(null)
