@@ -63,19 +63,6 @@ function IconArchive() {
   )
 }
 
-function IconChecklist() {
-  return (
-    <svg className="dash__nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M9 6h11" />
-      <path d="M9 12h11" />
-      <path d="M9 18h11" />
-      <path d="m3 6 1.5 1.5L7 5" />
-      <path d="m3 12 1.5 1.5L7 11" />
-      <path d="m3 18 1.5 1.5L7 17" />
-    </svg>
-  )
-}
-
 function navClass(isActive) {
   return isActive ? 'dash__nav-link--active' : undefined
 }
@@ -141,10 +128,6 @@ export function BackOfficeLayout({ children, title }) {
           <NavLink to="/panel/back-office/archiwum-umow" end className={({ isActive }) => navClass(isActive)}>
             <IconArchive />
             Archiwum umów
-          </NavLink>
-          <NavLink to="/panel/back-office/zadania" end className={({ isActive }) => navClass(isActive)}>
-            <IconChecklist />
-            Zadania
           </NavLink>
           <span className="dash__nav-item--soon">
             <IconUsers />

@@ -1,6 +1,6 @@
 const PREFIX = 'fl_modal_v1:'
 
-/** @typedef {{ leadId: string, boTab?: string, rzeczoznawcaModalTab?: string, variant?: string }} FirstLeadModalSessionPayload */
+/** @typedef {{ leadId: string, boTab?: string, rzeczoznawcaModalTab?: string, variant?: string, restoreOnReload?: boolean }} FirstLeadModalSessionPayload */
 
 /**
  * @param {string} scope — np. pathname z useLocation()
@@ -48,6 +48,8 @@ export function clearModalSession(scope) {
  */
 export function pickLeadRowFromModalSession(scope, rows) {
   const snap = readModalSession(scope)
-  if (!snap?.leadId || !Array.isArray(rows)) return null
+  if (!snap?.leadId || snap.restoreOnReload !== true || !Array.isArray(rows)) return null
+  // One-shot restore: after successful hydration do not reopen modal on next refresh.
+  clearModalSession(scope)
   return rows.find((r) => r && r.id === snap.leadId) ?? null
 }

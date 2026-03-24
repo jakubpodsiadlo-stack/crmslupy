@@ -367,6 +367,7 @@ export function FirstLeadDetailModal({ open, lead, onClose, onSaved, variant = '
       boTab,
       rzeczoznawcaModalTab,
       variant,
+      restoreOnReload: false,
     })
   }, [open, lead?.id, boTab, rzeczoznawcaModalTab, modalSessionScope, variant])
 
@@ -504,6 +505,7 @@ export function FirstLeadDetailModal({ open, lead, onClose, onSaved, variant = '
       boTab,
       rzeczoznawcaModalTab,
       variant,
+      restoreOnReload: true,
     })
   }
 
