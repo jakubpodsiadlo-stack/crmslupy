@@ -148,10 +148,6 @@ export function BackOfficeArchiwumUmowPage() {
             Odśwież
           </button>
         </div>
-        <p className="dash-muted" style={{ marginBottom: '1rem', fontSize: '0.9rem', maxWidth: '48rem' }}>
-          Umowy po weryfikacji w back office. <strong>Przywróć</strong> cofa archiwum BO i ustawia status na{' '}
-          <em>do obsługi</em> — wpis wraca na listę <strong>Umowy</strong> (archiwum infolinii bez zmian).
-        </p>
         {err ? (
           <p className="error" style={{ marginBottom: '0.75rem', whiteSpace: 'pre-line' }}>
             {err}

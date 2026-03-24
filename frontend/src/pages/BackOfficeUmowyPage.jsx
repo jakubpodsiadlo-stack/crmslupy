@@ -126,11 +126,6 @@ export function BackOfficeUmowyPage() {
             Odśwież
           </button>
         </div>
-        <p className="dash-muted" style={{ marginBottom: '1rem', fontSize: '0.9rem', maxWidth: '48rem' }}>
-          Umowy po weryfikacji infolinii, jeszcze <strong>nie</strong> zamknięte w BO. Po kliknięciu „Oznacz jako
-          zweryfikowany (BO)” wpis trafia do <strong>Archiwum umów</strong> w menu. W podglądzie:{' '}
-          <strong>Szczegóły</strong> i <strong>Dodaj pliki</strong>.
-        </p>
         {err ? (
           <p className="error" style={{ marginBottom: '0.75rem', whiteSpace: 'pre-line' }}>
             {err}
