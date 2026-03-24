@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { useOutletContext } from 'react-router-dom'
+import { NavLink, useOutletContext } from 'react-router-dom'
 import { getAgentDisplay } from '../lib/firstLeadDisplay'
 
 function formatInt(n) {
@@ -10,7 +10,7 @@ function formatInt(n) {
   }
 }
 
-function PanelCard({ title, accent, previewHref, children }) {
+function PanelCard({ title, accent, previewHref, archiveHref, children }) {
   return (
     <article className={`dash-prezes-panel-card dash-prezes-panel-card--${accent}`}>
       <h3 className="dash-prezes-panel-card__title">{title}</h3>
@@ -20,6 +20,11 @@ function PanelCard({ title, accent, previewHref, children }) {
           <NavLink to={previewHref} className="dash-prezes-panel-card__preview-link">
             Wejdź w podgląd panelu (bez zapisu)
           </NavLink>
+          {archiveHref ? (
+            <NavLink to={archiveHref} className="dash-prezes-panel-card__preview-link">
+              Otwórz archiwum
+            </NavLink>
+          ) : null}
         </div>
       ) : null}
     </article>
@@ -55,7 +60,12 @@ export function PrezesPanelePage() {
       {loading ? <p className="dash-muted">Ładowanie…</p> : null}
 
       <div className="dash-prezes-panel-grid">
-        <PanelCard title="Infolinia" accent="cyan" previewHref="/panel/infolinia/start">
+        <PanelCard
+          title="Infolinia"
+          accent="cyan"
+          previewHref="/panel/infolinia/start"
+          archiveHref="/panel/infolinia/archiwum"
+        >
           <p className="dash-prezes-panel-card__metric">{formatInt(aggregates.infoliniaOk)}</p>
           <p className="dash-prezes-panel-card__label">zweryfikowanych leadów</p>
           <p className="dash-prezes-panel-card__meta">
@@ -67,7 +77,12 @@ export function PrezesPanelePage() {
           </p>
         </PanelCard>
 
-        <PanelCard title="Back office" accent="violet" previewHref="/panel/back-office">
+        <PanelCard
+          title="Back office"
+          accent="violet"
+          previewHref="/panel/back-office"
+          archiveHref="/panel/back-office/archiwum-umow"
+        >
           <p className="dash-prezes-panel-card__metric">{formatInt(aggregates.boQueue)}</p>
           <p className="dash-prezes-panel-card__label">umów w kolejce BO</p>
           <p className="dash-prezes-panel-card__meta">
