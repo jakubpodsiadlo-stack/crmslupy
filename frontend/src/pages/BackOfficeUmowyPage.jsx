@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { FirstLeadDetailModal } from '../components/FirstLeadDetailModal'
 import { IconSearch } from '../components/icons/CodeModalIcons'
 import { getAgentDisplay, getBackofficeStatusLabel } from '../lib/firstLeadDisplay'
@@ -9,6 +9,7 @@ import {
 } from '../lib/firstLeadQueries'
 import { useModalSessionRestoreGate } from '../lib/useModalSessionRestoreGate'
 import { BackOfficeLayout } from '../layouts/BackOfficeLayout'
+import { useBackOfficeTasksTab } from '../layouts/BackOfficeTasksTabContext'
 import { supabase } from '../lib/supabase'
 
 function formatDt(iso) {
@@ -56,6 +57,7 @@ function cityDisplay(row) {
 }
 
 export function BackOfficeUmowyPage() {
+  const tasksTab = useBackOfficeTasksTab()?.tab ?? 'all'
   const location = useLocation()
   const restoreModalOnce = useModalSessionRestoreGate(location.pathname)
   const [rows, setRows] = useState([])
@@ -106,16 +108,26 @@ export function BackOfficeUmowyPage() {
   }, [load])
 
   const needle = normalizeCodeFilter(codeFilter)
+  const queueRows = useMemo(() => {
+    if (tasksTab === 'done') return []
+    return rows
+  }, [rows, tasksTab])
+
   const filteredRows = useMemo(() => {
-    if (!needle) return rows
-    return rows.filter((row) => {
+    if (!needle) return queueRows
+    return queueRows.filter((row) => {
       const code = row.calculator_code != null ? String(row.calculator_code).toLowerCase().replace(/\s+/g, '') : ''
       return code.includes(needle)
     })
-  }, [rows, needle])
+  }, [queueRows, needle])
 
-  const showFilterEmpty = !loading && !err && rows.length > 0 && filteredRows.length === 0 && needle.length > 0
-  const showTableEmpty = !loading && !err && rows.length === 0
+  const showFilterEmpty =
+    !loading &&
+    !err &&
+    queueRows.length > 0 &&
+    filteredRows.length === 0 &&
+    needle.length > 0
+  const showTableEmpty = !loading && !err && queueRows.length === 0
   const showNoRowsMessage = showFilterEmpty || showTableEmpty
 
   return (
@@ -135,6 +147,31 @@ export function BackOfficeUmowyPage() {
           <p className="dash-muted" style={{ marginBottom: '0.75rem', fontSize: '0.85rem', whiteSpace: 'pre-line' }}>
             {mergeWarning}
           </p>
+        ) : null}
+        {tasksTab === 'mine' ? (
+          <p className="dash-muted" style={{ margin: '0 0 0.75rem', fontSize: '0.88rem', lineHeight: 1.5 }}>
+            <strong>Moje zadania</strong> — po wprowadzeniu przypisań w bazie zobaczysz tu tylko umowy przypisane do Ciebie.
+            Na razie widzisz całą kolejkę jak w zakładce Wszystkie.
+          </p>
+        ) : null}
+        {tasksTab === 'done' ? (
+          <div
+            className="dash-panel"
+            style={{
+              marginBottom: '0.85rem',
+              padding: '0.9rem 1rem',
+              maxWidth: '40rem',
+              background: 'var(--dash-panel-soft, #f8fafc)',
+            }}
+          >
+            <p style={{ margin: 0, fontSize: '0.9rem', lineHeight: 1.55 }}>
+              Umowy <strong>zakończone w BO</strong> (zweryfikowane) są na liście{' '}
+              <NavLink to="/panel/back-office/archiwum-umow" className="linkish">
+                Archiwum umów
+              </NavLink>
+              .
+            </p>
+          </div>
         ) : null}
         {!err ? (
           <div className="dash-code-toolbar">
@@ -159,7 +196,7 @@ export function BackOfficeUmowyPage() {
             </div>
             {needle ? (
               <p className="dash-code-filter__hint">
-                Wyniki: {filteredRows.length} z {rows.length}
+                Wyniki: {filteredRows.length} z {queueRows.length}
               </p>
             ) : null}
           </div>
@@ -188,6 +225,8 @@ export function BackOfficeUmowyPage() {
                     <td colSpan={7} className="dash-muted" style={{ textAlign: 'center', padding: '1.5rem' }}>
                       {showFilterEmpty ? (
                         <>Brak pozycji pasujących do filtra.</>
+                      ) : tasksTab === 'done' ? (
+                        <>Brak pozycji na tej zakładce — zakończone umowy są w archiwum.</>
                       ) : (
                         <>
                           Brak umów w obiegu. Po weryfikacji na infolinii wpis trafia tutaj; po weryfikacji BO — do

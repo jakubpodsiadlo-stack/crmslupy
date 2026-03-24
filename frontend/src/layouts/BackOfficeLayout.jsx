@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { useAuth } from '../auth/AuthProvider'
 import { PrezesPreviewBanner } from '../components/PrezesPreviewBanner'
 import { PylonIcon } from '../components/icons/PylonIcon'
+import { BackOfficeTasksTabContext } from './BackOfficeTasksTabContext'
 import { usePrezesForeignPanelPreview } from '../lib/usePrezesForeignPanelPreview'
 
 function IconLayout() {
@@ -99,7 +100,7 @@ function HeaderUser() {
 
 export function BackOfficeLayout({ children, title }) {
   const { signOut, profile } = useAuth()
-  const [tab, setTab] = useState('all')
+  const [taskTab, setTaskTab] = useState('all')
   const showInfoliniaLink = profile?.role === 'administrator'
 
   return (
@@ -175,34 +176,42 @@ export function BackOfficeLayout({ children, title }) {
               </button>
             </div>
           </div>
-          <div className="dash__tabs" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              className={`dash__tab ${tab === 'all' ? 'dash__tab--active' : ''}`}
-              onClick={() => setTab('all')}
-            >
-              Wszystkie
-            </button>
-            <button
-              type="button"
-              role="tab"
-              className={`dash__tab ${tab === 'mine' ? 'dash__tab--active' : ''}`}
-              onClick={() => setTab('mine')}
-            >
-              Moje
-            </button>
-            <button
-              type="button"
-              role="tab"
-              className={`dash__tab ${tab === 'reports' ? 'dash__tab--active' : ''}`}
-              onClick={() => setTab('reports')}
-            >
-              Raporty
-            </button>
+          <div className="dash__tabs-group">
+            <p className="dash__tabs-heading">Zadania</p>
+            <div className="dash__tabs" role="tablist" aria-label="Zakładki zadań">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={taskTab === 'all'}
+                className={`dash__tab ${taskTab === 'all' ? 'dash__tab--active' : ''}`}
+                onClick={() => setTaskTab('all')}
+              >
+                Wszystkie
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={taskTab === 'mine'}
+                className={`dash__tab ${taskTab === 'mine' ? 'dash__tab--active' : ''}`}
+                onClick={() => setTaskTab('mine')}
+              >
+                Moje
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={taskTab === 'done'}
+                className={`dash__tab ${taskTab === 'done' ? 'dash__tab--active' : ''}`}
+                onClick={() => setTaskTab('done')}
+              >
+                Zakończone
+              </button>
+            </div>
           </div>
         </header>
-        <div className="dash__content">{children}</div>
+        <BackOfficeTasksTabContext.Provider value={{ tab: taskTab, setTab: setTaskTab }}>
+          <div className="dash__content">{children}</div>
+        </BackOfficeTasksTabContext.Provider>
       </div>
     </div>
   )
