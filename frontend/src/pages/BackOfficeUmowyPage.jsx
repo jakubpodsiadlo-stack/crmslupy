@@ -1,8 +1,19 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLocation } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { FirstLeadDetailModal } from '../components/FirstLeadDetailModal'
 import { IconSearch } from '../components/icons/CodeModalIcons'
-import { getAgentDisplay, getBackofficeStatusLabel } from '../lib/firstLeadDisplay'
+import {
+  getAgentDisplay,
+  getBackofficeStatusLabel,
+  getCodeTimestamp,
+  getVerificationLabel,
+} from '../lib/firstLeadDisplay'
+import {
+  BO_UMOWY_BASE_PATH,
+  BO_UMOWY_TABS,
+  boUmowyTabSlugToVerified,
+  isValidBoUmowyTabSlug,
+} from '../lib/backOfficeUmowyTabs'
 import {
   fetchFirstLeadsWithCalculator,
   formatSupabaseError,
@@ -32,6 +43,15 @@ function BackofficePill({ status }) {
   )
 }
 
+function InfoliniaPill({ status }) {
+  const ok = status === 'zweryfikowany'
+  return (
+    <span className={ok ? 'dash-pill dash-pill--ok' : 'dash-pill dash-pill--neutral'} title="Weryfikacja infolinii">
+      {ok ? 'Infolinia OK' : 'Infolinia — oczekuje'}
+    </span>
+  )
+}
+
 function missingEnvHint() {
   const url = import.meta.env.VITE_SUPABASE_URL
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -57,6 +77,8 @@ function cityDisplay(row) {
 
 export function BackOfficeUmowyPage() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { boUmowyTab } = useParams()
   const restoreModalOnce = useModalSessionRestoreGate(location.pathname)
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -65,10 +87,27 @@ export function BackOfficeUmowyPage() {
   const [selected, setSelected] = useState(null)
   const [codeFilter, setCodeFilter] = useState('')
 
+  const infoliniVerified = useMemo(() => boUmowyTabSlugToVerified(boUmowyTab), [boUmowyTab])
+
+  useEffect(() => {
+    if (boUmowyTab && !isValidBoUmowyTabSlug(boUmowyTab)) {
+      navigate(`${BO_UMOWY_BASE_PATH}/zweryfikowana-infolinia`, { replace: true })
+    }
+  }, [boUmowyTab, navigate])
+
+  useEffect(() => {
+    setSelected(null)
+  }, [boUmowyTab])
+
   const load = useCallback(async () => {
     setErr(null)
     setMergeWarning(null)
     setLoading(true)
+
+    if (infoliniVerified === null) {
+      setLoading(false)
+      return
+    }
 
     const envHint = missingEnvHint()
     if (envHint) {
@@ -78,11 +117,22 @@ export function BackOfficeUmowyPage() {
       return
     }
 
-    const { rows: data, error, mergeWarning: warn } = await fetchFirstLeadsWithCalculator(supabase, {
-      archived: true,
-      verifiedOnly: true,
-      backofficeActive: true,
-    })
+    const fetchOpts = infoliniVerified
+      ? {
+          archived: true,
+          verifiedOnly: true,
+          backofficeActive: true,
+        }
+      : {
+          archived: false,
+          verifiedOnly: false,
+          backofficeActive: true,
+        }
+
+    const { rows: data, error, mergeWarning: warn } = await fetchFirstLeadsWithCalculator(
+      supabase,
+      fetchOpts,
+    )
 
     setLoading(false)
     if (error) {
@@ -90,16 +140,22 @@ export function BackOfficeUmowyPage() {
       setRows([])
       return
     }
-    setRows(data)
+
+    let list = data ?? []
+    if (!infoliniVerified) {
+      list = list.filter((r) => getVerificationLabel(r) !== 'zweryfikowany')
+    }
+
+    setRows(list)
     setSelected((prev) => {
       if (prev?.id) {
-        const next = data.find((r) => r.id === prev.id)
+        const next = list.find((r) => r.id === prev.id)
         return next ?? null
       }
-      return restoreModalOnce(data)
+      return restoreModalOnce(list)
     })
     if (warn) setMergeWarning(warn)
-  }, [location.pathname, restoreModalOnce])
+  }, [infoliniVerified, location.pathname, restoreModalOnce])
 
   useEffect(() => {
     load()
@@ -117,6 +173,8 @@ export function BackOfficeUmowyPage() {
   const showFilterEmpty = !loading && !err && rows.length > 0 && filteredRows.length === 0 && needle.length > 0
   const showTableEmpty = !loading && !err && rows.length === 0
   const showNoRowsMessage = showFilterEmpty || showTableEmpty
+
+  const dateColumnLabel = infoliniVerified ? 'Data weryfikacji (infolinia)' : 'Data kodu'
 
   return (
     <BackOfficeLayout title="Umowy">
@@ -156,6 +214,26 @@ export function BackOfficeUmowyPage() {
             Odśwież
           </button>
         </div>
+        {!err ? (
+          <div
+            className="dash-umowy-subtabs"
+            role="tablist"
+            aria-label="Umowy według weryfikacji infolinii"
+            style={{ marginBottom: '1rem' }}
+          >
+            {BO_UMOWY_TABS.map(({ slug, label }) => (
+              <NavLink
+                key={slug}
+                to={`${BO_UMOWY_BASE_PATH}/${slug}`}
+                role="tab"
+                aria-selected={boUmowyTab === slug}
+                className={({ isActive }) => (isActive ? 'dash__tab dash__tab--active' : 'dash__tab')}
+              >
+                {label}
+              </NavLink>
+            ))}
+          </div>
+        ) : null}
         {err ? (
           <p className="error" style={{ marginBottom: '0.75rem', whiteSpace: 'pre-line' }}>
             {err}
@@ -173,7 +251,8 @@ export function BackOfficeUmowyPage() {
             <table className="dash-table">
               <thead>
                 <tr>
-                  <th scope="col">Data weryfikacji</th>
+                  <th scope="col">{dateColumnLabel}</th>
+                  <th scope="col">Infolinia</th>
                   <th scope="col">Kod</th>
                   <th scope="col">Klient</th>
                   <th scope="col">Miejscowość</th>
@@ -187,13 +266,17 @@ export function BackOfficeUmowyPage() {
               <tbody>
                 {showNoRowsMessage ? (
                   <tr>
-                    <td colSpan={7} className="dash-muted" style={{ textAlign: 'center', padding: '1.5rem' }}>
+                    <td colSpan={8} className="dash-muted" style={{ textAlign: 'center', padding: '1.5rem' }}>
                       {showFilterEmpty ? (
                         <>Brak pozycji pasujących do filtra.</>
+                      ) : infoliniVerified ? (
+                        <>
+                          Brak umów w obiegu (po weryfikacji infolinii). Po weryfikacji BO wpis trafia do archiwum umów.
+                        </>
                       ) : (
                         <>
-                          Brak umów w obiegu. Po weryfikacji na infolinii wpis trafia tutaj; po weryfikacji BO — do
-                          archiwum umów.
+                          Brak umów z listy kodów infolinii oczekujących na weryfikację. Po weryfikacji na infolinii wpis
+                          pojawi się w zakładce „Zweryfikowane przez infolinię”.
                         </>
                       )}
                     </td>
@@ -202,9 +285,14 @@ export function BackOfficeUmowyPage() {
                 {filteredRows.map((row) => {
                   const agent = getAgentDisplay(row) || '—'
                   const bo = getBackofficeStatusLabel(row)
+                  const inf = getVerificationLabel(row)
+                  const dateCell = infoliniVerified ? formatDt(row.verified_at) : formatDt(getCodeTimestamp(row))
                   return (
                     <tr key={row.id}>
-                      <td>{formatDt(row.verified_at)}</td>
+                      <td>{dateCell}</td>
+                      <td>
+                        <InfoliniaPill status={inf} />
+                      </td>
                       <td>
                         {row.calculator_code ? (
                           <code>{row.calculator_code}</code>
@@ -219,11 +307,7 @@ export function BackOfficeUmowyPage() {
                         <BackofficePill status={bo} />
                       </td>
                       <td>
-                        <button
-                          type="button"
-                          className="dash-table__btn"
-                          onClick={() => setSelected(row)}
-                        >
+                        <button type="button" className="dash-table__btn" onClick={() => setSelected(row)}>
                           Podgląd
                         </button>
                       </td>

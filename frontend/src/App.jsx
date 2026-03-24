@@ -109,6 +109,10 @@ export default function App() {
           />
           <Route
             path="/panel/back-office/umowy"
+            element={<Navigate to="/panel/back-office/umowy/zweryfikowana-infolinia" replace />}
+          />
+          <Route
+            path="/panel/back-office/umowy/:boUmowyTab"
             element={
               <RoleRoute allow={['backoffice', 'administrator', 'prezes']}>
                 <BackOfficeUmowyPage />

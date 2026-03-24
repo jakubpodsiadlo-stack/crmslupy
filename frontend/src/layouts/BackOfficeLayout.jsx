@@ -121,7 +121,7 @@ export function BackOfficeLayout({ children, title }) {
             <IconBriefcase />
             Pulpit
           </NavLink>
-          <NavLink to="/panel/back-office/umowy" end className={({ isActive }) => navClass(isActive)}>
+          <NavLink to="/panel/back-office/umowy" className={({ isActive }) => navClass(isActive)}>
             <IconContract />
             Umowy
           </NavLink>
