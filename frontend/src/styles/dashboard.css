@@ -2510,6 +2510,37 @@
   padding: 0.5rem 1rem 0.75rem;
 }
 
+.dash__content.dash__content--map-full {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 1rem 0.75rem;
+}
+
+.dash-mapbox-full {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--dash-radius-lg);
+  overflow: hidden;
+  background: #fff;
+}
+
+.dash-mapbox-full__iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.dash-mapbox-full__missing {
+  margin: auto;
+  color: var(--dash-muted);
+  font-size: 0.92rem;
+}
+
 .dash-calendar-panel--full {
   flex: 1;
   min-height: 0;
