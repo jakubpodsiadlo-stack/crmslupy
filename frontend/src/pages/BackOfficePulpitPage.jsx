@@ -64,11 +64,6 @@ export function BackOfficePulpitPage() {
 
   return (
     <BackOfficeLayout title="Pulpit back office">
-      <p className="dash-muted" style={{ margin: '0 0 1.25rem', fontSize: '0.9rem', maxWidth: '44rem' }}>
-        <strong>Umowy w obiegu</strong> — liczby z bazy: <strong>Aktywne</strong> to umowy po weryfikacji infolinii w
-        kolejce BO; <strong>Do akceptacji</strong> — przed weryfikacją infolinii (jak zakładki w menu Umowy). Pozostałe
-        kafelki są nadal <strong>przykładowe</strong>.
-      </p>
       {umowyErr ? (
         <p className="error" style={{ margin: '0 0 1rem', fontSize: '0.875rem', whiteSpace: 'pre-line' }}>
           {umowyErr}
