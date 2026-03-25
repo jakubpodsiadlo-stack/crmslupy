@@ -8,8 +8,8 @@ export function HandlowiecStartPage() {
           Panel handlowca
         </h2>
         <p style={{ margin: 0, color: 'var(--dash-muted)', lineHeight: 1.6, fontSize: '0.95rem' }}>
-          W <strong>Moje punkty</strong> widzisz podsumowanie: <strong>100 pkt</strong> za każdą umowę po weryfikacji
-          przez back office oraz <strong>nagrody</strong> m.in. przy <strong>30{'\u00a0'}000 pkt</strong> (Zontes C2125) i{' '}
+          W <strong>Moje punkty</strong> widzisz bilans i <strong>nagrody</strong> m.in. przy{' '}
+          <strong>30{'\u00a0'}000 pkt</strong> (Zontes C2125) i{' '}
           <strong>10{'\u00a0'}000{'\u00a0'}000 pkt</strong> (McLaren — najnowszy model, galeria zdjęć).
         </p>
       </section>
