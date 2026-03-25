@@ -173,10 +173,6 @@ export function HandlowiecPunktyPage() {
             <h3 className="dash-panel__title dash-panel__title--kody" style={{ marginBottom: '0.75rem', fontSize: '1rem' }}>
               Nagrody
             </h3>
-            <p className="dash-muted" style={{ marginBottom: '1rem', fontSize: '0.88rem', maxWidth: '52rem' }}>
-              Zdjęcia pochodzą z <strong>materiałów programu nagród</strong>; ostateczna specyfikacja i odbiór nagrody wg regulaminu w
-              momencie wymiany punktów.
-            </p>
             <div
               style={{
                 display: 'grid',
