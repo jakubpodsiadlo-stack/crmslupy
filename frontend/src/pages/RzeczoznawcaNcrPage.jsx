@@ -7,7 +7,6 @@ export function RzeczoznawcaNcrPage() {
     <RzeczoznawcaLayout title="NCR — rejestr cen">
       <ExternalServiceFrame
         heading="Rejestr cen nieruchomości (RCN)"
-        iframeTitle="Rejestr cen nieruchomości — moduł RCN na Geoportalu"
         src={NCR_RCN_FRAME_URL}
       >
         <p className="dash-muted" style={{ margin: 0, fontSize: '0.9rem', maxWidth: '52rem' }}>
