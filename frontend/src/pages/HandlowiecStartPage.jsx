@@ -1,17 +1,26 @@
 import { HandlowiecLayout } from '../layouts/HandlowiecLayout'
 
 export function HandlowiecStartPage() {
+  const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN
+  const mapSrc = token
+    ? `https://api.mapbox.com/styles/v1/mapbox/streets-v12.html?title=false&zoomwheel=true&access_token=${encodeURIComponent(token)}`
+    : null
+
   return (
-    <HandlowiecLayout title="Start">
-      <section className="dash-panel" style={{ maxWidth: 720 }}>
-        <h2 className="dash-funnel__title" style={{ marginBottom: '0.75rem' }}>
-          Panel handlowca
-        </h2>
-        <p style={{ margin: 0, color: 'var(--dash-muted)', lineHeight: 1.6, fontSize: '0.95rem' }}>
-          W <strong>Moje punkty</strong> widzisz bilans i <strong>nagrody</strong> m.in. przy{' '}
-          <strong>30{'\u00a0'}000 pkt</strong> (Zontes C2125) i{' '}
-          <strong>10{'\u00a0'}000{'\u00a0'}000 pkt</strong> (McLaren — najnowszy model, galeria zdjęć).
-        </p>
+    <HandlowiecLayout title="Start" contentClassName="dash__content--map-full">
+      <section className="dash-mapbox-full" aria-label="Mapa handlowca">
+        {mapSrc ? (
+          <iframe
+            title="Mapa handlowca (Mapbox)"
+            src={mapSrc}
+            className="dash-mapbox-full__iframe"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        ) : (
+          <div className="dash-mapbox-full__missing">
+            Ustaw `VITE_MAPBOX_ACCESS_TOKEN` w `frontend/.env`, aby włączyć mapę Mapbox.
+          </div>
+        )}
       </section>
     </HandlowiecLayout>
   )
