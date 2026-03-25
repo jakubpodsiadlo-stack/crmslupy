@@ -128,11 +128,6 @@ export function HandlowiecUmowyPage() {
             Odśwież
           </button>
         </div>
-        <p className="dash-muted" style={{ marginBottom: '1rem', fontSize: '0.9rem', maxWidth: '48rem' }}>
-          Umowy (zgłoszenia z infolinii) przypisane do Ciebie jako handlowiec — dopasowanie po{' '}
-          <strong>{agentName || '— brak imienia w profilu —'}</strong> (zgodność z polem handlowiec w zgłoszeniu,
-          kalkulatorze lub notatce).
-        </p>
         {err ? (
           <p className="error" style={{ marginBottom: '0.75rem', whiteSpace: 'pre-line' }}>
             {err}
