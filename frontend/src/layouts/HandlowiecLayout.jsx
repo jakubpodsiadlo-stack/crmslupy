@@ -66,7 +66,7 @@ function HeaderUser() {
   )
 }
 
-export function HandlowiecLayout({ children, title }) {
+export function HandlowiecLayout({ children, title, contentClassName = '' }) {
   const { signOut } = useAuth()
   const prezesPreview = usePrezesForeignPanelPreview()
 
@@ -115,7 +115,7 @@ export function HandlowiecLayout({ children, title }) {
             </div>
           </div>
         </header>
-        <div className="dash__content">{children}</div>
+        <div className={`dash__content${contentClassName ? ` ${contentClassName}` : ''}`}>{children}</div>
       </div>
     </div>
   )
