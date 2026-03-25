@@ -16,7 +16,6 @@ import { supabase } from '../lib/supabase'
 
 const PKT_ZA_UMOWE_BO = 100
 
-/** Progi nagród (pkt łącznie). */
 const NAGRODY = [
   {
     prog: 30_000,
@@ -143,11 +142,6 @@ export function HandlowiecPunktyPage() {
             Odśwież
           </button>
         </div>
-        <p className="dash-muted" style={{ marginBottom: '1rem', fontSize: '0.9rem', maxWidth: '48rem' }}>
-          Za każdą <strong>umowę zweryfikowaną przez back office</strong> (status BO: gotowe) otrzymujesz{' '}
-          <strong>{PKT_ZA_UMOWE_BO} punktów</strong>. Liczone są tylko umowy przypisane do Ciebie (
-          <strong>{agentName || '— brak imienia w profilu —'}</strong>), tak jak w „Moje umowy”.
-        </p>
 
         {!loading && !err ? (
           <div
