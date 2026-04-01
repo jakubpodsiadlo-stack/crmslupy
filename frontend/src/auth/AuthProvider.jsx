@@ -10,6 +10,9 @@ import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
+/** Po tym czasie UI przestaje czekać na profil (zapobiega wiecznemu „Ładowanie profilu”). */
+const PROFILE_FETCH_TIMEOUT_MS = 25_000
+
 async function fetchProfile(userId) {
   try {
     const { data, error } = await supabase
@@ -29,6 +32,30 @@ async function fetchProfile(userId) {
   }
 }
 
+async function fetchProfileWithTimeout(userId) {
+  let timeoutId
+  try {
+    const timeoutPromise = new Promise((_, reject) => {
+      timeoutId = setTimeout(
+        () =>
+          reject(
+            new Error(
+              `Brak odpowiedzi z serwera po ${PROFILE_FETCH_TIMEOUT_MS / 1000} s (sprawdź sieć i adres Supabase).`,
+            ),
+          ),
+        PROFILE_FETCH_TIMEOUT_MS,
+      )
+    })
+    const result = await Promise.race([fetchProfile(userId), timeoutPromise])
+    clearTimeout(timeoutId)
+    return result
+  } catch (e) {
+    if (timeoutId !== undefined) clearTimeout(timeoutId)
+    console.error('fetchProfileWithTimeout', e)
+    return { profile: null, errorMessage: e?.message ?? String(e) }
+  }
+}
+
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
@@ -43,7 +70,7 @@ export function AuthProvider({ children }) {
       setProfileFetchError(null)
       return
     }
-    const { profile: p, errorMessage } = await fetchProfile(user.id)
+    const { profile: p, errorMessage } = await fetchProfileWithTimeout(user.id)
     setProfile(p)
     setProfileFetchError(errorMessage)
   }, [user?.id])
@@ -81,13 +108,22 @@ export function AuthProvider({ children }) {
     let cancelled = false
     setProfileLoading(true)
     setProfileFetchError(null)
-    fetchProfile(user.id).then(({ profile: p, errorMessage }) => {
-      if (!cancelled) {
-        setProfile(p)
-        setProfileFetchError(errorMessage)
-        setProfileLoading(false)
-      }
-    })
+    fetchProfileWithTimeout(user.id)
+      .then(({ profile: p, errorMessage }) => {
+        if (!cancelled) {
+          setProfile(p)
+          setProfileFetchError(errorMessage)
+          setProfileLoading(false)
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          console.error('fetchProfile effect', e)
+          setProfile(null)
+          setProfileFetchError(e?.message ?? String(e))
+          setProfileLoading(false)
+        }
+      })
     return () => {
       cancelled = true
     }
