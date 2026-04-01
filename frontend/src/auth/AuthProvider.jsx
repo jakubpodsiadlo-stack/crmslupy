@@ -11,32 +11,41 @@ import { supabase } from '../lib/supabase'
 const AuthContext = createContext(null)
 
 async function fetchProfile(userId) {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .maybeSingle()
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .maybeSingle()
 
-  if (error) {
-    console.error('fetchProfile', error)
-    return null
+    if (error) {
+      console.error('fetchProfile', error)
+      return { profile: null, errorMessage: error.message ?? String(error) }
+    }
+    return { profile: data ?? null, errorMessage: null }
+  } catch (e) {
+    console.error('fetchProfile', e)
+    return { profile: null, errorMessage: e?.message ?? 'Błąd sieci' }
   }
-  return data
 }
 
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
+  const [profileLoading, setProfileLoading] = useState(false)
+  const [profileFetchError, setProfileFetchError] = useState(null)
   const [loading, setLoading] = useState(true)
 
   const refreshProfile = useCallback(async () => {
     if (!user?.id) {
       setProfile(null)
+      setProfileFetchError(null)
       return
     }
-    const p = await fetchProfile(user.id)
+    const { profile: p, errorMessage } = await fetchProfile(user.id)
     setProfile(p)
+    setProfileFetchError(errorMessage)
   }, [user?.id])
 
   useEffect(() => {
@@ -65,11 +74,19 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (!user?.id) {
       setProfile(null)
+      setProfileLoading(false)
+      setProfileFetchError(null)
       return
     }
     let cancelled = false
-    fetchProfile(user.id).then((p) => {
-      if (!cancelled) setProfile(p)
+    setProfileLoading(true)
+    setProfileFetchError(null)
+    fetchProfile(user.id).then(({ profile: p, errorMessage }) => {
+      if (!cancelled) {
+        setProfile(p)
+        setProfileFetchError(errorMessage)
+        setProfileLoading(false)
+      }
     })
     return () => {
       cancelled = true
@@ -96,6 +113,8 @@ export function AuthProvider({ children }) {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut()
     setProfile(null)
+    setProfileFetchError(null)
+    setProfileLoading(false)
   }, [])
 
   const resetPassword = useCallback(async (email) => {
@@ -116,6 +135,8 @@ export function AuthProvider({ children }) {
       session,
       user,
       profile,
+      profileLoading,
+      profileFetchError,
       loading,
       signIn,
       signUp,
@@ -128,6 +149,8 @@ export function AuthProvider({ children }) {
       session,
       user,
       profile,
+      profileLoading,
+      profileFetchError,
       loading,
       signIn,
       signUp,

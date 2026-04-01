@@ -11,10 +11,16 @@ export function RoleRoute({ children, allow }) {
   )
 }
 
-function RoleGate({ children, allow }) {
-  const { profile, user } = useAuth()
+function normalizeAppRole(role) {
+  if (role == null || typeof role !== 'string') return null
+  const t = role.trim().toLowerCase()
+  return t || null
+}
 
-  if (user && !profile) {
+function RoleGate({ children, allow }) {
+  const { profile, user, profileLoading, profileFetchError, refreshProfile } = useAuth()
+
+  if (user && profileLoading) {
     return (
       <div className="screen-center muted">
         <p>Ładowanie profilu…</p>
@@ -22,13 +28,39 @@ function RoleGate({ children, allow }) {
     )
   }
 
-  if (!profile || !allow.includes(profile.role)) {
+  if (user && !profile) {
+    return (
+      <div className="dash-access-page">
+        <div className="dash-access">
+          <h1>Profil niedostępny</h1>
+          <p>
+            {profileFetchError
+              ? `Nie udało się wczytać profilu: ${profileFetchError}`
+              : 'W bazie nie ma rekordu profilu powiązanego z tym kontem. Skontaktuj się z administratorem.'}
+          </p>
+          <p>
+            <button type="button" className="linkish" onClick={() => refreshProfile()}>
+              Spróbuj ponownie
+            </button>
+          </p>
+          <p>
+            <Link to="/">Wróć do strony głównej</Link>
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  const current = normalizeAppRole(profile?.role)
+  const allowed = allow.some((a) => normalizeAppRole(a) === current)
+
+  if (!profile || !current || !allowed) {
     return (
       <div className="dash-access-page">
         <div className="dash-access">
           <h1>Brak dostępu</h1>
           <p>
-            Ten widok jest przeznaczony dla roli: {allow.join(', ')}. Twoja rola:{' '}
+            Ten widok jest przeznaczony dla ról: {allow.join(', ')}. Twoja rola:{' '}
             <strong>{profile?.role ?? '—'}</strong>.
           </p>
           <p>

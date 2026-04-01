@@ -10,7 +10,23 @@ const PANEL_MECENAS_ROLES = ['mecenas']
 const PANEL_PREZES_ROLES = ['prezes']
 
 export function HomePage() {
-  const { profile, user, signOut } = useAuth()
+  const { profile, user, signOut, profileLoading, profileFetchError, refreshProfile } = useAuth()
+
+  if (user && profileLoading) {
+    return (
+      <div className="shell">
+        <header className="topbar">
+          <strong>EASYEKO</strong>
+          <button type="button" className="linkish" onClick={() => signOut()}>
+            Wyloguj
+          </button>
+        </header>
+        <main className="main">
+          <p className="muted">Ładowanie profilu…</p>
+        </main>
+      </div>
+    )
+  }
 
   if (user && !profile) {
     return (
@@ -22,7 +38,17 @@ export function HomePage() {
           </button>
         </header>
         <main className="main">
-          <p className="muted">Ładowanie profilu…</p>
+          <h1>Profil niedostępny</h1>
+          <p className="muted">
+            {profileFetchError
+              ? `Nie udało się wczytać profilu: ${profileFetchError}`
+              : 'W bazie nie ma rekordu profilu powiązanego z tym kontem (np. konto utworzone bez wiersza w tabeli profiles). Skontaktuj się z administratorem.'}
+          </p>
+          <p>
+            <button type="button" className="linkish" onClick={() => refreshProfile()}>
+              Spróbuj ponownie
+            </button>
+          </p>
         </main>
       </div>
     )
